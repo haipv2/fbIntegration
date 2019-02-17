@@ -1,37 +1,36 @@
 package haipv.fbintegration;
 
 import android.Manifest;
-import android.content.Context;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.MediaStore;
 import android.provider.Telephony;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.share.widget.SendButton;
 import com.facebook.share.widget.ShareButton;
 
 import java.io.File;
-import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -58,6 +57,7 @@ public class ShareActivity extends AppCompatActivity {
     public static final String TAG = "ShareActivity";
     private String phoneNumber = "5556";
     private String smsBody = "SMS BODY";
+    private String NAME = "NAME";
 //    private SimpleFacebook mSimpleFacebook = SimpleFacebook.getInstance();
 //    private Feed feed;
 
@@ -192,11 +192,10 @@ public class ShareActivity extends AppCompatActivity {
         smsVIntent.putExtra("address", phoneNumber);
 
 
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             smsVIntent.setAction(Intent.ACTION_SENDTO);
             String defaultSmsPackageName = Telephony.Sms.getDefaultSmsPackage(getApplicationContext());
-            if(defaultSmsPackageName != null) {
+            if (defaultSmsPackageName != null) {
                 smsVIntent.setPackage(defaultSmsPackageName);
             }
         } else {
@@ -212,8 +211,9 @@ public class ShareActivity extends AppCompatActivity {
         }
 
     }
+
     @OnClick(R.id.btnMMS)
-    public void sendMMS(View view){
+    public void sendMMS(View view) {
         try {
             Bitmap image = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.RGB_565);
             view.draw(new Canvas(image));
@@ -224,7 +224,7 @@ public class ShareActivity extends AppCompatActivity {
             sendIntent.putExtra("sms_body", "some text");
             sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(url));
             sendIntent.setType("image/png");
-        } catch (Exception e){
+        } catch (Exception e) {
             Toast.makeText(this, "Your sms has failed...",
                     Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -233,7 +233,7 @@ public class ShareActivity extends AppCompatActivity {
 
     @OnClick(R.id.openContact)
     public void sendWithOpenContact(View view) {
-        Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts/people"));
         startActivityForResult(intent, PICK_CONTACT);
     }
 
@@ -268,40 +268,50 @@ public class ShareActivity extends AppCompatActivity {
 //        mSimpleFacebook.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case (PICK_CONTACT): {
-                if (resultCode == RESULT_OK) {
+            case (PICK_CONTACT) :
+                String phoneNumber = "";
+                List<String> allNumbers = new ArrayList<String>();
+                if (resultCode == Activity.RESULT_OK) {
                     Uri contactData = data.getData();
-                    Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
+                    String id = contactData.getLastPathSegment();
+                    Cursor cursor = getContentResolver().query(Phone.CONTENT_URI, null, Phone.CONTACT_ID + "=?", new String[] { id }, null);
+                    int phoneIdx = cursor.getColumnIndex(Phone.DATA);
                     if (cursor.moveToFirst()) {
-                        String contactId =
-                                cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-                        //
-                        //  Get all phone numbers.
-                        //
-                        Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
-                        while (phones.moveToNext()) {
-                            String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            int type = phones.getInt(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
-                            switch (type) {
-                                case ContactsContract.CommonDataKinds.Phone.TYPE_HOME:
-                                    Toast.makeText(this, "NUMBER TYPE_HOME: " + number, Toast.LENGTH_LONG).show();
-                                    break;
-                                case ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE:
-                                    // do something with the Mobile number here...
-                                    Toast.makeText(this, "NUMBER TYPE_MOBILE: " + number, Toast.LENGTH_LONG).show();
-                                    break;
-                                case ContactsContract.CommonDataKinds.Phone.TYPE_WORK:
-                                    Toast.makeText(this, "NUMBER TYPE_WORK: " + number, Toast.LENGTH_LONG).show();
-                                    break;
-                            }
+                        while (cursor.isAfterLast() == false) {
+                            phoneNumber = cursor.getString(phoneIdx);
+                            allNumbers.add(phoneNumber);
+                            cursor.moveToNext();
                         }
-                        phones.close();
                     }
-                    cursor.close();
                 }
 
-            }
+                final CharSequence[] items = allNumbers.toArray(new String[allNumbers.size()]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Choose a number");
+                builder.setItems(items, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        String selectedNumber = items[item].toString();
+                        selectedNumber = selectedNumber.replace("-", "");
+                        Toast.makeText(getApplicationContext(), "SELECTED NUMBER: " + selectedNumber, Toast.LENGTH_LONG).show();
+                    }
+                });
+                AlertDialog alert = builder.create();
+                if(allNumbers.size() > 1) {
+                    alert.show();
+                } else {
+                    String selectedNumber = phoneNumber.toString();
+                    selectedNumber = selectedNumber.replace("-", "");
+                    Toast.makeText(getApplicationContext(), "SELECTED NUMBER: " + selectedNumber, Toast.LENGTH_LONG).show();
+                }
+
+                if (phoneNumber.length() == 0) {
+                    //no numbers found actions
+                }
+                break;
         }
+    }
+
+    public void showSelectedNumber(int type, String number) {
+        Toast.makeText(this, type + ": " + number, Toast.LENGTH_LONG).show();
     }
 }
