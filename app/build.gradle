@@ -64,6 +64,7 @@ dependencies {
     implementation "com.facebook.android:facebook-android-sdk:$rootProject.ext.facebookVersion"
     implementation "com.facebook.android:facebook-share:$rootProject.ext.facebookVersion"
     implementation "com.facebook.android:facebook-login:$rootProject.ext.facebookVersion"
+    implementation "de.hdodenhof:circleimageview:3.0.0"
 
 //    implementation 'com.sromku:simple-fb:4.1.1'
 }

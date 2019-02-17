@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Build;
@@ -23,6 +24,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +33,8 @@ import com.facebook.share.widget.SendButton;
 import com.facebook.share.widget.ShareButton;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,9 +56,12 @@ public class ShareActivity extends AppCompatActivity {
     ShareButton fbShare;
     @BindView(R.id.fbSend)
     SendButton fbSend;
-
     @BindView(R.id.SMS)
     SendButton button;
+    @BindView(R.id.editImg)
+    Button editImg;
+    @BindView(R.id.imgMsg)
+    ImageView imageView;
     public static final String TAG = "ShareActivity";
     private String phoneNumber = "5556";
     private String smsBody = "SMS BODY";
@@ -124,6 +132,13 @@ public class ShareActivity extends AppCompatActivity {
 //        mSimpleFacebook.publish(feed,onPublishListener);
     }
 
+    @OnClick(R.id.editImg)
+    public void changeImage(View view) {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+        startActivityForResult(photoPickerIntent, 3);
+
+    }
 
     @OnClick(R.id.SMS)
     public void sendSmSMMS(View view) {
@@ -308,6 +323,22 @@ public class ShareActivity extends AppCompatActivity {
                     //no numbers found actions
                 }
                 break;
+            case 3:{
+                if (resultCode == RESULT_OK) {
+                    try {
+                        final Uri imageUri = data.getData();
+                        final InputStream imageStream = getContentResolver().openInputStream(imageUri);
+                        final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+                        imageView.setImageBitmap(selectedImage);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+                    }
+
+                }else {
+                    Toast.makeText(this, "You haven't picked Image",Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 
