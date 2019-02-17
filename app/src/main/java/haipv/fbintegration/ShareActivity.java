@@ -95,6 +95,12 @@ public class ShareActivity extends AppCompatActivity {
             requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, 100);
             //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, 4);
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        }
+
 //        else {
 //            // Android version is lesser than 6.0 or the permission is already granted.
 //            List<String> contacts = getContactNames();
@@ -134,9 +140,16 @@ public class ShareActivity extends AppCompatActivity {
 
     @OnClick(R.id.editImg)
     public void changeImage(View view) {
-        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-        photoPickerIntent.setType("image/*");
-        startActivityForResult(photoPickerIntent, 3);
+//        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//        photoPickerIntent.setType("image/*");
+//        startActivityForResult(photoPickerIntent, 3);
+
+        Intent takePicture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(takePicture, 4);//zero can be replaced with any action code
+
+        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhoto , 5);//one can be replaced with any action code
 
     }
 
@@ -338,7 +351,22 @@ public class ShareActivity extends AppCompatActivity {
                 }else {
                     Toast.makeText(this, "You haven't picked Image",Toast.LENGTH_LONG).show();
                 }
+                break;
             }
+            case 4:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+                    imageView.setImageURI(selectedImage);
+                }
+
+                break;
+            case 5:
+                if(resultCode == RESULT_OK){
+                    Uri selectedImage = data.getData();
+                    imageView.setImageURI(selectedImage);
+                }
+                break;
+
         }
     }
 
