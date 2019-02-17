@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txtMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/imgMsg"
+        android:text="SHARE SCREEN"
+        android:textColor="@android:color/holo_red_light" />
+
+    <ImageView
+        android:id="@+id/imgMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/gift" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtMsg"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <com.facebook.share.widget.ShareButton
+            android:id="@+id/fbShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/row_icons_padding" />
+
+        <com.facebook.share.widget.SendButton
+            android:id="@+id/fbSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/row_icons_padding" />
+
+        <com.facebook.share.widget.SendButton
+            android:id="@+id/SMS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_bright"
+            android:text="sendSMS" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayoutId2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayoutId"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnSmsManager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMSManager" />
+        <Button
+            android:id="@+id/btnVIntent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="btnVIntent" />
+        <Button
+            android:id="@+id/btnSIntent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="btnSIntent" />
+        <Button
+            android:id="@+id/btnMMS"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sendMMS" />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayoutId3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayoutId2"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/openContact"
+            android:text="SMSContact"
+            />
+        </LinearLayout>
+
+</RelativeLayout>

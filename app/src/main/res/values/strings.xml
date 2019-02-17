@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FBIntegration</string>
+    <string name="login_cancel_error">Login cancel</string>
+    <string name="login_error">Login error</string>
+    <string name="token">EAAEcDQe3JgwBANfNpXP7oX5FAIuBWRh3qiG3tbKIi4rfX3nnfwCx5n2LWpgWshE0LVZAEf4g1pirOrzvopg0ZAXEo0ZB2RBJm6H75dZBl7pNvPslAzHfzyTfMUZCFlM83NLLeDc3uiivzJR4qIBsnPzj2dtHATOZCZCSDGjUIPtNQW7cDiEScgeV0ACUnu7gHmZAaBRzMiWBTin4JZCmyPgYw</string>
+    <string name="text_share">text share ne</string>
+</resources>
